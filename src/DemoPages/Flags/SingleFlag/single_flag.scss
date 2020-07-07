@@ -1,0 +1,27 @@
+.flag_wrap {
+    margin-bottom: 20px;
+    padding: 20px 0;
+
+    .flag_categories {
+        padding: 20px 0;
+    }
+
+    .flag_head {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        font-size: 18px;
+
+        .flag_title {
+            margin-right: 10px;
+        }
+
+        .flad_add {
+            font-weight: 700;
+            font-size: 12px;
+            padding: 4px 5px 0px 5px;
+            cursor: pointer;
+            border: 1px solid rgb(209, 209, 209);
+        }
+    }
+}

@@ -1,0 +1,19 @@
+.category_wrap {
+    display: inline-flex;
+    font-size: 11px;
+    padding: 0px 0px;
+    margin: 10px 0;
+    margin-right: 8px;
+    cursor: pointer;
+    border: 1px dashed transparent;
+
+    .category_count {
+        padding: 0px 5px;
+        font-weight: 700;
+        background: rgb(165, 165, 165);
+    }
+
+    .category_text {
+        padding: 0px 5px 0px 2px;
+    }
+}
