@@ -1,57 +1,10 @@
+import { __fetch } from './services/fetch'
 export const toggleModal = (showModal, setShowModal) => {
     setShowModal(!showModal)
 }
 
 export const resetClose = (showModal, setShowModal) => {
     setShowModal(!showModal)
-}
-
-export const matchSingleObjectList = (list, obj) => {
-    return Object.values(list)
-        .filter(flag => obj.toLowerCase() === flag.title.toLowerCase())
-}
-
-export const getDistinctArray = (oldArray, newArray) => {
-    return [...oldArray, ...newArray.filter(item => !oldArray.includes(item))]
-}
-
-export const updateFlags = (props, form) => {
-
-    let flag = matchSingleObjectList(props.flags, form.flag_type)
-
-    flag[0].categories = getDistinctArray(flag[0].categories, form.flag_cats)
-
-    flag[0].tranformed = [...flag[0].categories.map(item => ({ item: item, count: 0 }))]
-
-
-    flag[0].items.push({
-        color: form.flag_color,
-        icon: form.flag_tag,
-        title: form.flag_name,
-        categories: form.flag_cats,
-        border: '2px dashed transparent'
-    })
-
-    flag[0].tranformed = [...flag[0].tranformed.map(trans => {
-        let result = 0
-        flag[0].items.map(item => {
-            if (item.categories.includes(trans.item)) {
-                result += 1;
-            }
-        })
-        return {
-            item: trans.item,
-            count: result
-        }
-    }).sort((a, b) => a.item < b.item ? -1 : 1)]
-
-    props.updateFlags({
-        ...props.flags,
-        [flag[0].title.toLowerCase()]: {
-            ...flag[0]
-        }
-    })
-
 }
 
 export const applyStyles = (items, currentItem) => {
@@ -91,4 +44,91 @@ export const showOccurrence = (event, data, props) => {
     })
 }
 
+
+export const componentToHex = (c) => {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+export const rgbToHex = (r, g, b) => {
+    return componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+export const getFlags = async (props) => {
+    let result = await __fetch(null, "GET", null)
+
+    let r = tranformFlagsForView(result.data)
+    props.updateFlags({ ...r })
+}
+
+export const tranformFlagsForView = (data) => {
+    let jobs = [];
+    let carLoans = [];
+    let tasks = [];
+
+    data.forEach(datum => {
+        if (datum.type === 'job') {
+            jobs.push(datum)
+        } else if (datum.type === 'loan_car') {
+            carLoans.push(datum)
+        } else {
+            tasks.push(datum)
+        }
+    })
+
+    return {
+        'job': {
+            title: 'Job',
+            ...createTransformedObject(jobs)
+        },
+        'loan cars': {
+            title: 'Loan Cars',
+            ...createTransformedObject(carLoans)
+        },
+        'tasks': {
+            title: 'Tasks',
+            ...createTransformedObject(tasks)
+        }
+    }
+}
+
+export const createTransformedObject = (data) => {
+
+    let distictCategories = getDistinctItems(data);
+    let occurrences = findOccurrence(distictCategories, data);
+
+    return {
+        categories: distictCategories,
+        items: [...data].sort((a, b) => a.pos < b.pos ? -1 : 1),
+        transformed: [...occurrences]
+    }
+}
+
+export const getDistinctItems = (flags) => {
+    let results = []
+    flags.forEach(flag => {
+        let filtered = flag.categories.filter(item => !results.includes(item))
+        results = [...results, ...filtered]
+    })
+    return results.sort((a, b) => a < b ? -1 : 1);
+}
+
+export const convertToKeyValue = (array) => {
+    return array.map(item => ({ item, count: 0 }))
+}
+
+export const findOccurrence = (distictCategories, data) => {
+    let convertedDistinctCats = convertToKeyValue(distictCategories)
+
+    let results = convertedDistinctCats.map(item => {
+        let count = data.filter(datum => datum.categories.includes(item.item)).length;
+
+        return {
+            item: item.item,
+            count
+        }
+    })
+
+    return results
+}
 

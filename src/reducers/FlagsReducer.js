@@ -12,24 +12,23 @@ const initialState = {
             title: 'Job',
             categories: [],
             items: [],
-            tranformed: []
+            transformed: []
         },
         'loan cars': {
             title: 'Loan Cars',
             categories: [],
             items: [],
-            tranformed: []
+            transformed: []
         },
         'tasks': {
             title: 'Tasks',
             categories: [],
             items: [],
-            tranformed: []
+            transformed: []
         }
     }
 }
 const FlagsReducer = (state = initialState, action) => {
-    console.log("REDUX STORE : ", state)
     switch (action.type) {
         case 'FORM_SUBMITTED': {
             return {

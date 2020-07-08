@@ -2,9 +2,14 @@ import React, { Fragment } from 'react';
 import Category from '../Category/category';
 import Item from '../Item/item'
 import './single_flag.scss'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const handleData = (event, props) => {
     props.showOccurrence(event, props)
+}
+
+const handleDragEnd = (event, props) => {
+    props.onDragEnd(event, props.title)
 }
 
 const SingleFlag = (props) => {
@@ -17,7 +22,7 @@ const SingleFlag = (props) => {
                 </div>
                 <div className='flag_categories'>
                     {
-                        props.tranformed.map((category, i) => {
+                        props.transformed.map((category, i) => {
                             return (
                                 <Category key={i} data={category} click={(event) => handleData(event, props)} />
                             )
@@ -25,17 +30,31 @@ const SingleFlag = (props) => {
                     }
 
                 </div>
-                <div>
-                    {
-                        props.items.map((item, i) => {
-                            return (
-                                <Item key={i} data={item} />
-                            )
-                        })
-                    }
-                </div>
+                <DragDropContext onDragEnd={(event,) => handleDragEnd(event, props)}>
+                    <Droppable droppableId="droppable" direction="horizontal">
+                        {(provided, snapshot) => (
+                            <div ref={provided.innerRef} {...provided.droppableProps} style={{ display: 'flex', overflow: 'scroll', }}>
+                                {
+                                    props.items.map((item, i) => {
+                                        return (
+                                            <Draggable key={item.id.toString()} draggableId={item.id.toString()} index={i}>
+                                                {(provided, snapshot) => (
+                                                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} style={{ ...provided.draggableProps.style }}>
+                                                        <Item key={i} data={item} />
+                                                    </div>
+                                                )
+                                                }
+                                            </Draggable>
+                                        )
+                                    })
+                                }
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
             </div>
-        </Fragment>
+        </Fragment >
     )
 }
 

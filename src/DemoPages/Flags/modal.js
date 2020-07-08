@@ -20,6 +20,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux'
+import { __fetch } from './services/fetch'
+import { rgbToHex } from './functions'
 
 
 const FormModal = (props) => {
@@ -40,7 +42,8 @@ const FormModal = (props) => {
 
     const handleColorPick = (event) => {
         let rgba = event.rgb;
-        let color = `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`;
+        let color = rgbToHex(rgba.r, rgba.g, rgba.b)
+
         handleFormInputs({
             target: {
                 name: 'flag_color',
@@ -81,26 +84,34 @@ const FormModal = (props) => {
         // }
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
+
         event.preventDefault()
+
+        let flagType = null;
+        if (formData.flag_type === 'loan cars') {
+            flagType = 'loan_car'
+        } else if (formData.flag_type === 'tasks') {
+            flagType = 'task'
+        } else {
+            flagType = 'job'
+        }
+        let payload = {
+            type: flagType,
+            name: formData.flag_name,
+            categories: [...formData.flag_cats],
+            tag: formData.flag_tag,
+            colour: formData.flag_color,
+            pos: 1000,
+            attributes: [{ time: formData.flag_date }]
+        }
+        let data = await __fetch('/', "POST", payload)
+        let cats = await __fetch('/categories', "GET", null)
+        console.log(cats)
+        console.log(data)
         props.submitForm(formData)
         props.updateFlags(formData)
     }
-
-    // const filterCats = (type) => {
-    //     let flag = Object.values(props.flags).filter(flag => flag.title.toLowerCase() === type);
-
-    //     if (flag[0].categories.length > 0) {
-    //         setCats(flag[0].categories.map(category => {
-    //             return {
-    //                 value: category,
-    //                 label: category
-    //             }
-    //         }))
-    //     } else {
-    //         setCats(flag[0].categories);
-    //     }
-    // }
 
 
     const popover = {
